@@ -6,6 +6,8 @@ from pathlib import Path
 import os
 import dj_database_url
 from dotenv import load_dotenv
+from django.db.models.signals import post_migrate
+
 
 load_dotenv()
 
@@ -173,3 +175,28 @@ MAILERS = {
 }
 
 DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
+
+# ---------------- AUTO SUPERUSER (for free tier) ----------------
+
+from django.db.models.signals import post_migrate
+
+def create_superuser_if_not_exists(sender, **kwargs):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+
+    username = os.getenv('DJANGO_SUPERUSER_USERNAME')
+    email = os.getenv('DJANGO_SUPERUSER_EMAIL')
+    password = os.getenv('DJANGO_SUPERUSER_PASSWORD')
+
+    if username and email and password:
+        if not User.objects.filter(username=username).exists():
+            User.objects.create_superuser(
+                username=username,
+                email=email,
+                password=password
+            )
+            print(f">>> Superuser '{username}' created")
+        else:
+            print(f">>> Superuser '{username}' already exists")
+
+post_migrate.connect(create_superuser_if_not_exists)
