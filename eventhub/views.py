@@ -103,10 +103,8 @@ def event_detail_api(request, id):
 
 
 # ---------------- REGISTER ----------------
-
 @api_view(['POST'])
 def register_api(request):
-
     username = request.data.get('username')
     email = request.data.get('email')
     password = request.data.get('password')
@@ -136,14 +134,24 @@ def register_api(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
+    # User create
     user = User.objects.create_user(username=username, email=email, password=password)
 
-    # Set role
-    user.profile.role = role
-    user.profile.save()
+    # UserProfile explicit-a create pannunga (signal illa na)
+    from .models import UserProfile   # ila already imported at top
+    UserProfile.objects.get_or_create(user=user, defaults={'role': role})
+    # if profile already exists with different role, update
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+    profile.role = role
+    profile.save()
 
-    send_welcome_email(user)
+    try:
+        send_welcome_email(user)
+    except Exception as e:
+        print(f">>> Welcome email error: {e}")
+        # Email fail aana kooda register continue aaganum
 
+    # Token create
     token, _ = Token.objects.get_or_create(user=user)
 
     return Response({
@@ -153,6 +161,7 @@ def register_api(request):
         "role": role,
         "token": token.key
     }, status=status.HTTP_201_CREATED)
+
 
 
 # ---------------- LOGIN ----------------
