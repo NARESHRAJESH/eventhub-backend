@@ -142,10 +142,10 @@ def register_api(request):
     user.profile.save()
 
     # 3. Welcome email — try/except la wrap (IMPORTANT)
-    try:
-        send_welcome_email(user)
-    except Exception as e:
-        print(f">>> Welcome email error: {e}")
+    # try:
+    #     send_welcome_email(user)
+    # except Exception as e:
+    #     print(f">>> Welcome email error: {e}")
 
     # 4. Token
     token, _ = Token.objects.get_or_create(user=user)
