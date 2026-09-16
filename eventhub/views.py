@@ -134,24 +134,20 @@ def register_api(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # User create
+    # 1. Create user
     user = User.objects.create_user(username=username, email=email, password=password)
 
-    # UserProfile explicit-a create pannunga (signal illa na)
-    from .models import UserProfile   # ila already imported at top
-    UserProfile.objects.get_or_create(user=user, defaults={'role': role})
-    # if profile already exists with different role, update
-    profile, _ = UserProfile.objects.get_or_create(user=user)
-    profile.role = role
-    profile.save()
+    # 2. Set role (UserProfile auto-created by signal)
+    user.profile.role = role
+    user.profile.save()
 
+    # 3. Welcome email — try/except la wrap (IMPORTANT)
     try:
         send_welcome_email(user)
     except Exception as e:
         print(f">>> Welcome email error: {e}")
-        # Email fail aana kooda register continue aaganum
 
-    # Token create
+    # 4. Token
     token, _ = Token.objects.get_or_create(user=user)
 
     return Response({
