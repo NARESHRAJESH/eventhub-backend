@@ -126,8 +126,7 @@ STORAGES = {
 }
 
 
-# CORS
-CORS_ALLOWED_ORIGINS = [
+CORSCORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "https://eventhub-frontend-beryl.vercel.app",
@@ -146,7 +145,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "https://eventhub-frontend-beryl.vercel.app",
-     "https://eventhub-frontend-git-main-eventhub7.vercel.app",
+    "https://eventhub-frontend-git-main-eventhub7.vercel.app",
     "https://eventhub-frontend-9bj04yw20-eventhub7.vercel.app",
 ]
 
