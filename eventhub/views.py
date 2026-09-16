@@ -202,7 +202,6 @@ def login_api(request):
 
 
 # ---------------- BOOKING ----------------
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_booking(request):
@@ -240,9 +239,10 @@ def create_booking(request):
 
     event.seats -= tickets
     event.save()
-    send_booking_email(booking)
-    return Response(BookingSerializer(booking).data, status=status.HTTP_201_CREATED)
 
+    # send_booking_email(booking)  # Render free tier la SMTP block, temporarily skip
+
+    return Response(BookingSerializer(booking).data, status=status.HTTP_201_CREATED)
 
 # ---------------- ORGANIZER DASHBOARD ----------------
 
