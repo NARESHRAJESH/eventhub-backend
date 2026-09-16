@@ -6,7 +6,6 @@ from pathlib import Path
 import os
 import dj_database_url
 from dotenv import load_dotenv
-from django.db.models.signals import post_migrate
 
 
 load_dotenv()
@@ -126,7 +125,8 @@ STORAGES = {
 }
 
 
-CORSCORS_ALLOWED_ORIGINS = [
+# CORS  ← IDHU THAAN FIX (CORS, not CORSCORS)
+CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "https://eventhub-frontend-beryl.vercel.app",
@@ -137,7 +137,6 @@ CORSCORS_ALLOWED_ORIGINS = [
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https://eventhub-frontend.*\.vercel\.app$",
 ]
-
 
 CORS_ALLOW_CREDENTIALS = False
 
@@ -185,6 +184,7 @@ MAILERS = {
 }
 
 DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
+
 
 # ---------------- AUTO SUPERUSER (for free tier) ----------------
 
