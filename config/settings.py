@@ -132,8 +132,6 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
 }
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
 
 # CORS  ← IDHU THAAN FIX (CORS, not CORSCORS)
 CORS_ALLOWED_ORIGINS = [
