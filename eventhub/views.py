@@ -11,7 +11,8 @@ from django.db.models import Sum
 from .models import Event, Booking, UserProfile
 from .serializers import EventSerializer, BookingSerializer
 from .emails import send_welcome_email, send_booking_email
-
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 # ---------------- HELPER ----------------
 
 def get_user_role(user):
@@ -110,18 +111,37 @@ def register_api(request):
     password = request.data.get('password')
     role = request.data.get('role', 'user')
 
+    # Check empty fields
     if not username or not email or not password:
         return Response(
             {"error": "All fields are required"},
             status=status.HTTP_400_BAD_REQUEST
         )
 
+    # Email format validation
+    try:
+        validate_email(email)
+    except ValidationError:
+        return Response(
+            {"error": "Please enter a valid email address"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Password strength
+    if len(password) < 6:
+        return Response(
+            {"error": "Password must be at least 6 characters"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Role validation
     if role not in ['user', 'organizer']:
         return Response(
             {"error": "Invalid role"},
             status=status.HTTP_400_BAD_REQUEST
         )
 
+    # Duplicate checks
     if User.objects.filter(username=username).exists():
         return Response(
             {"error": "Username already exists"},
@@ -134,20 +154,18 @@ def register_api(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # 1. Create user
-    user = User.objects.create_user(username=username, email=email, password=password)
+    # Create user
+    user = User.objects.create_user(
+        username=username,
+        email=email,
+        password=password
+    )
 
-    # 2. Set role (UserProfile auto-created by signal)
+    # Set role
     user.profile.role = role
     user.profile.save()
 
-    # 3. Welcome email — try/except la wrap (IMPORTANT)
-    # try:
-    #     send_welcome_email(user)
-    # except Exception as e:
-    #     print(f">>> Welcome email error: {e}")
-
-    # 4. Token
+    # Token
     token, _ = Token.objects.get_or_create(user=user)
 
     return Response({
@@ -157,9 +175,6 @@ def register_api(request):
         "role": role,
         "token": token.key
     }, status=status.HTTP_201_CREATED)
-
-
-
 # ---------------- LOGIN ----------------
 
 @api_view(['POST'])
