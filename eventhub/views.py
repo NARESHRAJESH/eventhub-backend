@@ -127,6 +127,20 @@ def register_api(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
+    # Domain validation
+    common_domains = [
+        'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com',
+        'icloud.com', 'protonmail.com', 'rediffmail.com'
+    ]
+
+    domain = email.split('@')[-1].lower()
+
+    if domain not in common_domains:
+        return Response(
+            {"error": "Please use a valid email domain (gmail, yahoo, outlook, etc.)"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
     # Password strength
     if len(password) < 6:
         return Response(
